@@ -4,17 +4,6 @@
 namespace Api\V2;
 
 
-use Api\Exceptions\ApiException;
-use Brand;
-use EducationalMovement;
-use Input;
-use Movement;
-use Postcard\Filesystem\Filesystem;
-use Role;
-use Shaunpersad\ApiFoundation\Models\OauthClient;
-use SponsorInterface;
-use User;
-use Validator;
 
 class Api {
 
