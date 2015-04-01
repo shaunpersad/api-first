@@ -40,12 +40,13 @@ Thirdly, the resource classes are built with inheritance and code reuse in mind.
 Both the controllers and resource classes follow a directory structure that attempt to mirror the actual API endpoints that they represent.
 
 For example, let us consider an API with the following endpoints:
-`/cats`
-`/cats/{cat_id}`
-`/users`
-`/users/{user_id}`
-`/users/{user_id}/cats`
-`/users/{user_id}/cats/{cat_id}`
+
+ - `/cats`
+ - `/cats/{cat_id}`
+ - `/users`
+ - `/users/{user_id}`
+ - `/users/{user_id}/cats`
+ - `/users/{user_id}/cats/{cat_id}`
 
 
 The directory corresponding directory structure for this API would be as follows:
