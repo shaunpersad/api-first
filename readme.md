@@ -50,34 +50,9 @@ For example, let us consider an API with the following endpoints:
 
 The directory corresponding directory structure for this API would be as follows:
 
-controllers
-    |- Api
-        |- V1
-        |- V2
-            |- Abstract
-                |- AbstractApiController.php
-            |- Resources
-                |- Cats
-                    |- **CatsController.php**
-                |- Users
-                    |- Cats
-                        |- **UsersCatsController.php**
-                    |- **UsersController.php**
+controllers: https://www.dropbox.com/s/gznhg6oh7ie8hg5/Screenshot%202015-04-01%2008.57.23.png?dl=0
 
-libraries
-    |-Api
-        |- V1
-        |- V2
-            |- Abstract
-                |- AbstractEntityResource.php
-                |- AbstractResource.php
-            |- Resources
-                |- Cats
-                    |- **CatsResource.php**
-                    |- Users
-                        |- Cats
-                            |- **UsersCatsResource.php**
-                        |- **UsersResource.php**
+libraries: https://www.dropbox.com/s/65iyv71ef9mbuo7/Screenshot%202015-04-01%2008.56.20.png?dl=0
 
 There are a few things to notice here.
 
