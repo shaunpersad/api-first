@@ -95,13 +95,15 @@ whereas `UsersCatsResource` handles the endpoints for user-specific cats `/users
 
 Why bother to create two different classes to handle cats when one can simply extend one from the other?
 
-## resource class anatomy
+## resource class anatomy (reference CatsResource.php)
 
+### namespace
 Opening the `CatsResource`, the first thing you'll notice is that it is namespaced `Api/V2`.
 If you were to open the corresponding `CatsController`, you'll notice that it is also namespaced `Api/V2`.
 We make use of versioned namespaces in our architecture to differentiate between different API versions.
 Generally, you will not need to make your namespaces any more specific or go any deeper than `Api/V2`.
 
+### parent classes
 Next, `CatsResource` extends `AbstractEntityResource`.  The `Abstract` directory contains both an `AbstractResource`
 and an `AbstractEntityResource`.  `AbstractResource` is the all-purpose resource class.
 
@@ -112,14 +114,69 @@ As expected, it extends `AbstractResource`, but adds in functionality specific t
 Note: in my nomenclature, an "entity" is an instance of a database model, e.g. in `$user = User::find(1)`,
 `$user` would be an "entity".
 
+### the "with" property
 Up next in the `CatsResource` anatomy is a protected property called `$with`. Much like the Eloquent function,
 this allows us to load specified associations whenever we ask for an entity, e.g. with a `get()` call (to be explained soon).
 This association loading can even be applied to collections of entities if we so desire (also to be explained soon).
 
-Following this is a public static method called `endpointFilters`. This is a highly important function.
+### endpoint filtering
+Following this is a public static method called `endpointFilters`. This is a highly important method.
 This is where we can define filters for our endpoints. Furthermore, all endpoint methods that are not public
 ***must*** have a filter defined in this method, or else it will not be callable. Another ramification of this restriction
 is that every resource class that contains protected endpoint methods must implement an `endpointFilters` static method.
 
+The `AbstractResource` argument in `endpointFilters` will always be the resource class that is being filtered.
+It is not necessary to use it (and in the example, it isn't), but it serves as a reference, just in case it is needed.
 
+`endpointFilters` always returns an array whose keys are the names of the endpoint methods you wish to filter.
+The values of this array are either string constants defined in the `Api` class, or an anonymous function.
+Either way, a function is called that filters access to the endpoint.
+It does this by either throwing an `ApiException` or not, which is a much more robust and informative way of
+filtering, vs. simply returning `true` or `false`.
 
+You will notice that `CatsResource` has "all", "create", and "get" endpoint methods being filtered.
+"all" and "create" are defined in `CatsResource`, but "get" is inherited from `AbstractEntityResource`.
+"get" is a method that returns the entity (along with the associations specified in `with`), e.g.
+`/cats/{cat_id}` will result in a call to the "get" method of `CatsResource`. Since it is a fair assumption to say
+that every entity-based resource of your API will want to return its entity, "get" is already included in `AbstractEntityResource`.
+
+As a matter of convention, methods named "all" should return a collection. It should be the method called
+when making an API call to the "base" of the resource, e.g. `/cats`. This method was not included in `AbstractEntityResource`
+since implementation of this type of behavior can vary wildly.
+
+You may notice that the actual endpoint methods in our resource classes are `protected`.
+As you know, `protected` methods cannot ordinarily be accessed. This is where `endpointFilters` kicks in.
+
+`endpointFilters` is called whenever a `protected` method is called in a resource class.
+It then runs the corresponding filter function for the method called,
+and if the filter function exists and no errors are thrown, it allows access to that endpoint method.
+
+### the base query
+Next in the `CatsResource` anatomy is the `query` public method. This is another important method that must be
+defined when extending `AbstractEntityResource`. It specifies the base Eloquent/Fluent query that will be used when
+calling methods such as "all". As such, in the "all" method, you should use this as the base of the query
+(by calling `$this->query()` instead of calling `Cats::`. This simple requirement helps tremendously with resource class extension.
+
+For example, `UsersCatsResource` extends `CatsResource`, with the only overridden methods being `query` and `create`.
+This allows us to use the exact same "all" method from `CatsResource`, but with a base query that is restricted to only cats belonging to a particular user.
+
+### endpoint param validation
+In the "all" method of `CatsResource`, you will see this strange setup:
+```
+$defaults = array(
+    'with' => $with = null,
+    'order_by' => $order_by = 'users.created_at',
+    'order_dir' => $order_dir = 'DESC',
+    'page' => $page = 1,
+    'per_page' => $per_page = 30
+);
+
+$params = $this->validateParams($defaults, $params);
+
+extract($params);
+```
+
+Firstly, we are creating a `$defaults` array, but defining variables while assigning them to the array.
+This is done because as you will notice at the end of the snippet, we are extracting the variables from the array.
+By defining the variables, you may safely call for example `$order_by` later in the method, knowing it exists.
+As a bonus, IDEs will not complain about using variables that have not been initialized.

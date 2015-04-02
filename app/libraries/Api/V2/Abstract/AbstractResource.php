@@ -73,6 +73,20 @@ abstract class AbstractResource {
         throw $this->api->exception(Api::EXCEPTION_ENDPOINT_NOT_FOUND);
     }
 
+    /**
+     * Given the input params, their defaults, and the rules for validation,
+     * this method will merge the params and the defaults, then validate them.
+     *
+     * Optionally, you may use the defaultValidationRules method to define some default rules
+     * that may be used whenever this function is called. These default rules are overridden if
+     * a corresponding rule is found in the $rules array.
+     *
+     * @param array $defaults
+     * @param array $params
+     * @param array $rules
+     * @return array
+     * @throws ApiException
+     */
     public function validateParams($defaults = array(), $params = array(), $rules = array()) {
 
         $params = array_merge($defaults, $params);
