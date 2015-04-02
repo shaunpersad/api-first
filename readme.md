@@ -112,4 +112,14 @@ As expected, it extends `AbstractResource`, but adds in functionality specific t
 Note: in my nomenclature, an "entity" is an instance of a database model, e.g. in `$user = User::find(1)`,
 `$user` would be an "entity".
 
+Up next in the `CatsResource` anatomy is a protected property called `$with`. Much like the Eloquent function,
+this allows us to load specified associations whenever we ask for an entity, e.g. with a `get()` call (to be explained soon).
+This association loading can even be applied to collections of entities if we so desire (also to be explained soon).
+
+Following this is a public static method called `endpointFilters`. This is a highly important function.
+This is where we can define filters for our endpoints. Furthermore, all endpoint methods that are not public
+***must*** have a filter defined in this method, or else it will not be callable. Another ramification of this restriction
+is that every resource class that contains protected endpoint methods must implement an `endpointFilters` static method.
+
+
 
